@@ -24,12 +24,21 @@ module.exports = grammar({
 
     entity_declaration: $ => prec.right(seq(
       'entity', $.identifier, 'is',
-      //$.entity_header,
+      $.entity_header,
       //$.entity_declarative_part,
       //optional(seq('begin', $.entity_statement_part)),
       'end', optional('entity'), optional($.entity_simple_name),
       $.semicolon
     )),
+
+    // 3.2.2 Entity header
+
+    entity_header: $ => seq(
+      optional($.formal_generic_clause),
+      //optional($.formal_port_clause)
+    ),
+
+    formal_generic_clause: $ => $.generic_clause,
 
     entity_simple_name: $ => $.identifier,
 
@@ -40,6 +49,11 @@ module.exports = grammar({
     // 5.2 Scalar types
 
     // 5.2.1 General
+
+    range_constraint: $ => seq(
+      'range',
+       $.range
+    ),
 
     range: $ => choice(
       //$.range_attribute_name,
@@ -66,16 +80,126 @@ module.exports = grammar({
 
     // 5.3.2.1 General
 
+    array_type_definition: $ => choice(
+      $.unbounded_array_definition,
+      $.constrained_array_definition
+    ),
+
+    unbounded_array_definition: $ => seq(
+      'array', 
+      '(',
+      $.index_subtype_definition,
+      repeat(seq(',', $.index_subtype_definition)),
+      ')',
+      'of',
+      $.element_subtype_indication
+    ),
+
+    constrained_array_definition: $ => seq(
+      'array',
+      $.index_constraint,
+      'of',
+      $.element_subtype_indication
+    ),
+
+    index_subtype_definition: $ => seq(
+      $.type_mark,
+      'range',
+      '<>'
+    ),
+
+    array_constraint: $ => seq(
+      $.index_constraint,
+      optional($.array_element_constraint),
+      seq('(', 'open', ')'),
+      optional(array_element_constraint)
+    ),
+
+    array_element_constraint: $ => $.element_constraint,
+
+    index_constraint: $ => seq(
+      '(',
+      $.discrete_range,
+      repeat(seq( ',', $.discrete_range)),
+      ')'
+    ),
+
     discrete_range: $ => choice(
     //  $.discrete_subtype_indication,
       $.range
     ),
+
+    // 5.3.3 Record types
+
+    // 5.3.3.1 General
+
+    record_type_definition: $ => seq(
+      'record',
+      repeat($.element_declaration),
+      'end', 'record', optional($.record_type_simple_name)
+    ),
+
+    record_type_simple_name: $ => $.simple_name,
+
+    element_declaration: $ => seq(
+      $.identifier_list,
+      ':',
+      $.element_subtype_definition,
+      $.semicolon
+    ),
+
+    identifier_list: $ => seq(
+      $.identifier,
+      repeat(seq(',', $.identifier))
+    ),
+
+    element_subtype_definition: $ => $.subtype_indication,
 
     // ########################################################################
     // 6 Declarations
     // ########################################################################
 
     // 6.3 Subtype declarations
+
+    subtype_declaration: $ => seq(
+      'subtype',
+      $.identifier,
+      'is',
+      $.subtype_indication,
+      $.semicolon
+    ),
+
+    subtype_indication: $ => seq(
+      optional($.resolution_indication),
+      $.type_mark,
+      optional($.constraint)
+    ),
+
+    resolution_indication: $ => choice(
+      $.resolution_function_name,
+      seq('(', $.element_resolution, ')')
+    ),
+
+    resolution_function_name: $ => $.name,
+
+    element_resolution: $ => choice(
+      $.array_element_resolution,
+      $.record_resolution
+    ),
+
+    array_element_resolution: $ => $.resolution_indication,
+
+    record_resolution: $ => seq(
+      $.record_element_resolution,
+      repeat(seq(',', $.record_element_resolution))
+    ),
+
+    record_element_resolution: $ => seq(
+      $.record_element_simple_name,
+      $.resolution_indication
+    ),
+
+    record_element_simple_name: $ => $.simple_name,
 
     type_mark: $ => choice(
       $.type_name,
@@ -85,6 +209,131 @@ module.exports = grammar({
     type_name: $ => $.name,
 
     subtype_name: $ => $.name,
+
+    constraint: $ => choice(
+      $.range_constraint,
+      $.array_constraint,
+      $.record_constraint
+    ),
+
+    element_constraint: $ => choice(
+      $.array_constraint,
+      $.record_constraint
+    ),
+
+    // 6.5 Interface declarations
+
+    // 6.5.1 General
+
+    interface_declaration: $ => choice(
+      $.interface_object_declaration,
+      $.interface_type_declaration,
+      //$.interface_subprogram_declaration,
+      //$.interface_package_declaration,
+    ),
+
+    // 6.5.2 Interface object declarations
+
+    interface_object_declaration: $ => choice(
+      $.interface_constant_declaration,
+      $.interface_signal_declaration,
+      $.interface_variable_declaration,
+      $.interface_file_declaration,
+    ),
+    
+    interface_constant_declaration: $ => seq(
+      optional('constant'),
+      $.identifier_list,
+      ':',
+      optional('in'),
+      $.interface_type_indication,
+      optional(seq(':=', $.static_conditional_expression))
+    ),
+
+    static_conditional_expression: $ => conditional_expression,
+
+    interface_signal_declaration: $ => seq(
+      optional('signal'),
+      $.identifier_list,
+      ':',
+      $.signal_mode_indication
+    ),
+
+    signal_mode_indication: $ => $.mode_indication,
+
+    interface_variable_declaration: $ => seq(
+      optional('variable'),
+      $.identifier_list,
+      ':',
+      optional($.mode ),
+      $.interface_type_indication,
+      optional(seq(':=', $.static_conditional_expression))
+    ),
+
+    interface_file_declaration: $ => seq(
+      'file',
+      $.identifier_list,
+      ':',
+      $.subtype_indication
+    ),
+
+    interface_type_indication: $ => choice(
+      $.subtype_indication,
+      $.unspecified_type_indication
+    ),
+
+    mode_indication: $ => choice(
+      $.simple_mode_indication,
+      //$.mode_view_indication
+    ),
+
+    simple_mode_indication: $ => seq(
+      optional($.mode),
+      $.interface_type_indication,
+      optional('bus'),
+      optional(seq(':=', $.static_conditional_expression))
+    ),
+
+    mode: $ => choice('in', 'out', 'inout', 'buffer', 'linkage'),
+
+    //mode_view_indication: $ => (
+    //  $.record_mode_view_indication,
+    //  $.array_mode_view_indication
+    //),
+
+    // 6.5.3
+
+    // 6.5.3.1
+
+    interface_type_declaration: $ => seq(
+      'type',
+      $.identifier,
+      optional(seq('is', $.incomplete_type_definition))
+    ),
+
+    // 6.5.6 Interface lists
+
+    // 6.5.6.1 General
+
+    interface_list: $ => seq(
+      $.interface_element,
+      repeat(seq(';', $.interface_element)),
+      optional($.semicolon)
+    ),
+
+    interface_element: $ => $.interface_declaration,
+
+    // 6.5.6.2 Generic clauses
+
+    generic_clause: $ => seq(
+      'generic',
+      '(',
+      $.generic_interface_list,
+      ')',
+      $.semicolon
+    ),
+
+    generic_interface_list: $ => $.interface_list,
 
     // ########################################################################
     // 8 Names
