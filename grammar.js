@@ -95,6 +95,8 @@ module.exports = grammar({
       $.element_subtype_indication
     ),
 
+    element_subtype_indication: $ => $.subtype_indication,
+
     constrained_array_definition: $ => seq(
       'array',
       $.index_constraint,
@@ -112,7 +114,7 @@ module.exports = grammar({
       $.index_constraint,
       optional($.array_element_constraint),
       seq('(', 'open', ')'),
-      optional(array_element_constraint)
+      optional($.array_element_constraint)
     ),
 
     array_element_constraint: $ => $.element_constraint,
@@ -154,6 +156,101 @@ module.exports = grammar({
     ),
 
     element_subtype_definition: $ => $.subtype_indication,
+
+    record_constraint: $ => seq(
+      '(',
+      $.record_element_constraint,
+      repeat(seq(',', $.record_element_constraint)),
+      ')'
+    ),
+
+    record_element_constraint: $ => seq(
+      $.record_element_simple_name,
+      $.element_constraint
+    ),
+
+    record_element_simple_name: $ => $.simple_name,
+
+    // 5.8 Unspecified types
+
+    // 5.8.1 General
+
+    unspecified_type_indication: $=> seq(
+      'type',
+      'is',
+      $.incomplete_type_definition
+    ),
+
+    incomplete_type_definition: $ => choice(
+      $.private_incomplete_type_definition,
+      $.scalar_incomplete_type_definition,
+      $.discrete_incomplete_type_definition,
+      $.integer_incomplete_type_definition,
+      $.physical_incomplete_type_definition,
+      $.floating_incomplete_type_definition,
+      $.array_incomplete_type_definition,
+      $.access_incomplete_type_definition,
+      $.file_incomplete_type_definition
+    ),
+
+    incomplete_subtype_indication: $ => choice(
+      $.subtype_indication,
+      $.unspecified_type_indication
+    ),
+
+    incomplete_type_mark: $ => choice(
+      $.type_mark,
+      $.unspecified_type_indication
+    ),
+
+    private_incomplete_type_definition: $ => seq('private'),
+
+    scalar_incomplete_type_definition: $ => seq('<', '>'),
+
+    discrete_incomplete_type_definition: $ => seq('(', '<', '>', ')'),
+
+    integer_incomplete_type_definition: $ => seq('range', '<', '>'),
+
+    physical_incomplete_type_definition: $ => seq('units', '<', '>'),
+
+    floating_incomplete_type_definition: $ => seq('range', '<', '>', '.', '<', '>'),
+
+    array_incomplete_type_definition: $ => seq(
+      'array',
+      '(',
+      $.array_index_incomplete_type_list,
+      ')',
+      'of',
+      $.element_incomplete_subtype_indication
+    ),
+
+    element_incomplete_subtype_indication: $=> $.incomplete_subtype_indication,
+
+    array_index_incomplete_type_list: $=> seq(
+      $.array_index_incomplete_type,
+      seq(',', $.array_index_incomplete_type)
+    ),
+
+    array_index_incomplete_type: $ => choice(
+      $.index_subtype_definition,
+      $.index_constraint,
+      $.unspecified_type_indication
+    ),
+
+    access_incomplete_type_definition: $ => seq(
+      'access',
+      $.access_incomplete_subtype_indication
+    ),
+
+    access_incomplete_subtype_indication: $ => $.incomplete_subtype_indication,
+
+    file_incomplete_type_definition: $ => seq(
+      'file',
+      'of',
+      $.file_incomplete_type_mark
+    ),
+
+    file_incomplete_type_mark: $ => $.incomplete_type_mark,
 
     // ########################################################################
     // 6 Declarations
@@ -250,7 +347,7 @@ module.exports = grammar({
       optional(seq(':=', $.static_conditional_expression))
     ),
 
-    static_conditional_expression: $ => conditional_expression,
+    static_conditional_expression: $ => $.conditional_expression,
 
     interface_signal_declaration: $ => seq(
       optional('signal'),
