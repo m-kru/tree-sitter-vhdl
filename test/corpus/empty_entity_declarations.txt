@@ -1,0 +1,20 @@
+==========================
+Empty entity declarations
+==========================
+
+entity foo is
+end;
+
+entity foo is
+end entity;
+
+entity foo is
+end entity foo;
+
+---
+
+(source_file
+  (design_file
+    (design_unit (library_unit (primary_unit (entity_declaration (identifier (basic_identifier)) (semicolon)))))
+    (design_unit (library_unit (primary_unit (entity_declaration (identifier (basic_identifier)) (semicolon)))))
+    (design_unit (library_unit (primary_unit (entity_declaration (identifier (basic_identifier)) (entity_simple_name (identifier (basic_identifier))) (semicolon)))))))

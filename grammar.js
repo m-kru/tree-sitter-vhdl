@@ -12,6 +12,8 @@ module.exports = grammar({
   rules: {
     source_file: $ => repeat($.design_file),
 
+    semicolon: $ => seq(';'),
+
     // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
@@ -20,13 +22,14 @@ module.exports = grammar({
 
     // 3.2.1 General
 
-    entity_declaration: $ => seq(
+    entity_declaration: $ => prec.right(seq(
       'entity', $.identifier, 'is',
       //$.entity_header,
       //$.entity_declarative_part,
       //optional(seq('begin', $.entity_statement_part)),
-      'end', optional('entity'), optional($.entity_simple_name)
-    ),
+      'end', optional('entity'), optional($.entity_simple_name),
+      $.semicolon
+    )),
 
     entity_simple_name: $ => $.identifier,
 
@@ -280,7 +283,7 @@ module.exports = grammar({
 
     // 13.1 Design units
 
-    design_file: $ => repeat1($.design_unit),
+    design_file: $ => prec.right(repeat1($.design_unit)),
 
     design_unit: $ => seq(
     //  $.context_clause,
