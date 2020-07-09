@@ -1,0 +1,10 @@
+========================
+Empty entity declaration
+========================
+
+entity foo is
+end;
+
+---
+
+(ERROR (basic_identifier))

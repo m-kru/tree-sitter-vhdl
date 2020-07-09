@@ -1,0 +1,12 @@
+=================
+Delimited comment
+=================
+
+/* Some
+multi
+line
+comment. */
+
+---
+
+(delimited_comment)
