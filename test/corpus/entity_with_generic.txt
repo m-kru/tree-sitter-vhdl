@@ -1,0 +1,12 @@
+===================
+Entity with generic
+===================
+
+entity foo is
+  generic(
+    WIDTH           : natural := 8; -- data width
+    REGISTER_OUTPUT : boolean := true
+  );
+end;
+
+---
