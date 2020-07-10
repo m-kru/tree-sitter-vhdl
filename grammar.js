@@ -10,9 +10,9 @@ module.exports = grammar({
   ],
 
   rules: {
-    source_file: $ => repeat($.design_file),
+    source_file: $ => seq($._design_file),
 
-    semicolon: $ => seq(';'),
+    _semicolon: $ => seq(';'),
 
     // ########################################################################
     // 3 Design entities and configurations
@@ -23,24 +23,29 @@ module.exports = grammar({
     // 3.2.1 General
 
     entity_declaration: $ => prec.right(seq(
-      'entity', $.identifier, 'is',
-      $.entity_header,
+      'entity', $._identifier, 'is',
+      optional($._formal_generic_clause),
+      //optional($.formal_port_clause),
       //$.entity_declarative_part,
       //optional(seq('begin', $.entity_statement_part)),
       'end', optional('entity'), optional($.entity_simple_name),
-      $.semicolon
+      $._semicolon
     )),
 
     // 3.2.2 Entity header
 
-    entity_header: $ => seq(
-      optional($.formal_generic_clause),
-      //optional($.formal_port_clause)
-    ),
+    // entity_header rule gives following error during generation:
+    // "The rule `entity_header` matches the empty string."
+    // This is why '_formal_generic_clause' and 'formal_port_clause' have been
+    // moved directly to the 'entity declaration' rule.
+    //entity_header: $ => seq(
+    //  optional($.formal_generic_clause),
+    //  optional($.formal_port_clause)
+    //),
 
-    formal_generic_clause: $ => $.generic_clause,
+    _formal_generic_clause: $ => $.generic_clause,
 
-    entity_simple_name: $ => $.identifier,
+    entity_simple_name: $ => $._identifier,
 
     // ########################################################################
     // 5 Types
@@ -74,7 +79,7 @@ module.exports = grammar({
 
     physical_literal: $ => seq(optional($.abstract_literal), $.unit_name),
 
-    unit_name: $ => $.name,
+    unit_name: $ => $._name,
 
     // 5.3.2 Array types
 
@@ -105,17 +110,17 @@ module.exports = grammar({
     ),
 
     index_subtype_definition: $ => seq(
-      $.type_mark,
+      $._type_mark,
       'range',
       '<>'
     ),
 
-    array_constraint: $ => seq(
+    array_constraint: $ => prec.left(seq(
       $.index_constraint,
       optional($.array_element_constraint),
       seq('(', 'open', ')'),
       optional($.array_element_constraint)
-    ),
+    )),
 
     array_element_constraint: $ => $.element_constraint,
 
@@ -141,18 +146,18 @@ module.exports = grammar({
       'end', 'record', optional($.record_type_simple_name)
     ),
 
-    record_type_simple_name: $ => $.simple_name,
+    record_type_simple_name: $ => $._simple_name,
 
     element_declaration: $ => seq(
       $.identifier_list,
       ':',
       $.element_subtype_definition,
-      $.semicolon
+      $._semicolon
     ),
 
     identifier_list: $ => seq(
-      $.identifier,
-      repeat(seq(',', $.identifier))
+      $._identifier,
+      repeat(seq(',', $._identifier))
     ),
 
     element_subtype_definition: $ => $.subtype_indication,
@@ -169,7 +174,7 @@ module.exports = grammar({
       $.element_constraint
     ),
 
-    record_element_simple_name: $ => $.simple_name,
+    record_element_simple_name: $ => $._simple_name,
 
     // 5.8 Unspecified types
 
@@ -199,7 +204,7 @@ module.exports = grammar({
     ),
 
     incomplete_type_mark: $ => choice(
-      $.type_mark,
+      $._type_mark,
       $.unspecified_type_indication
     ),
 
@@ -260,15 +265,15 @@ module.exports = grammar({
 
     subtype_declaration: $ => seq(
       'subtype',
-      $.identifier,
+      $._identifier,
       'is',
       $.subtype_indication,
-      $.semicolon
+      $._semicolon
     ),
 
     subtype_indication: $ => seq(
       optional($.resolution_indication),
-      $.type_mark,
+      $._type_mark,
       optional($.constraint)
     ),
 
@@ -277,7 +282,7 @@ module.exports = grammar({
       seq('(', $.element_resolution, ')')
     ),
 
-    resolution_function_name: $ => $.name,
+    resolution_function_name: $ => $._name,
 
     element_resolution: $ => choice(
       $.array_element_resolution,
@@ -296,16 +301,19 @@ module.exports = grammar({
       $.resolution_indication
     ),
 
-    record_element_simple_name: $ => $.simple_name,
+    record_element_simple_name: $ => $._simple_name,
 
-    type_mark: $ => choice(
-      $.type_name,
-      $.subtype_name
-    ),
-
-    type_name: $ => $.name,
-
-    subtype_name: $ => $.name,
+    // While syntax tree is being built there is no way to distinguish
+    // types names and subtype names. This is why following rules from
+    // the standard:
+    // _type_mark: $ => choice(
+    //  $.type_name,
+    //  $.subtype_name
+    // ),
+    // type_name: $ => $._name,
+    // subtype_name: $ => $._name,
+    // have been replaced with unequivocal one
+    _type_mark: $ => $._name,
 
     constraint: $ => choice(
       $.range_constraint,
@@ -343,7 +351,7 @@ module.exports = grammar({
       $.identifier_list,
       ':',
       optional('in'),
-      $.interface_type_indication,
+      $._interface_type_indication,
       optional(seq(':=', $.static_conditional_expression))
     ),
 
@@ -362,8 +370,8 @@ module.exports = grammar({
       optional('variable'),
       $.identifier_list,
       ':',
-      optional($.mode ),
-      $.interface_type_indication,
+      optional($.mode),
+      $._interface_type_indication,
       optional(seq(':=', $.static_conditional_expression))
     ),
 
@@ -374,7 +382,7 @@ module.exports = grammar({
       $.subtype_indication
     ),
 
-    interface_type_indication: $ => choice(
+    _interface_type_indication: $ => choice(
       $.subtype_indication,
       $.unspecified_type_indication
     ),
@@ -386,7 +394,7 @@ module.exports = grammar({
 
     simple_mode_indication: $ => seq(
       optional($.mode),
-      $.interface_type_indication,
+      $._interface_type_indication,
       optional('bus'),
       optional(seq(':=', $.static_conditional_expression))
     ),
@@ -404,7 +412,7 @@ module.exports = grammar({
 
     interface_type_declaration: $ => seq(
       'type',
-      $.identifier,
+      $._identifier,
       optional(seq('is', $.incomplete_type_definition))
     ),
 
@@ -415,7 +423,7 @@ module.exports = grammar({
     interface_list: $ => seq(
       $.interface_element,
       repeat(seq(';', $.interface_element)),
-      optional($.semicolon)
+      optional($._semicolon)
     ),
 
     interface_element: $ => $.interface_declaration,
@@ -427,10 +435,20 @@ module.exports = grammar({
       '(',
       $.generic_interface_list,
       ')',
-      $.semicolon
+      $._semicolon
     ),
 
-    generic_interface_list: $ => $.interface_list,
+    generic_interface_list: $ => seq(
+      $.generic_interface_element,
+      repeat(seq(';', $.generic_interface_element)),
+      optional($._semicolon)
+    ),
+
+    generic_interface_element: $ => choice(
+      $.interface_constant_declaration,
+      //$.interface_type_declaration,
+      //$.interface_subprogram_declaration,
+    ),
 
     // ########################################################################
     // 8 Names
@@ -438,8 +456,8 @@ module.exports = grammar({
 
     // 8.1 General
 
-    name: $ => choice(
-      $.simple_name,
+    _name: $ => prec(1,choice(
+      $._simple_name,
       //$.operator_symbol,
       //$.character_literal,
       //$.selected_name,
@@ -447,9 +465,9 @@ module.exports = grammar({
       //$.slice_name,
       //$.attribute_name,
       //$.external_name,
-    ),
+    )),
 
-    simple_name: $ => $.identifier,
+    _simple_name: $ => $._identifier,
 
     // ########################################################################
     // 9 Expressions
@@ -503,10 +521,10 @@ module.exports = grammar({
       repeat(seq($.adding_operator, $.term))
     ),
 
-    term: $ => seq(
+    term: $ => prec.left(seq(
       $.factor,
       repeat(seq($.expression_or_unaffected, $.factor))
-    ),
+    )),
 
     factor: $ => seq(
       $.unary_expression,
@@ -520,8 +538,8 @@ module.exports = grammar({
       //seq($.unary_logical_operator, $.primary)
     ),
 
-    primary: $ => choice(
-      $.name,
+    primary: $ => prec(1,choice(
+      $._name,
       $.literal,
       $.aggregate,
       $.function_call,
@@ -529,7 +547,7 @@ module.exports = grammar({
       $.type_conversion,
       $.allocator,
       seq('(', $.conditional_expression, ')')
-    ),
+    )),
 
     condition: $ => $.expression,
 
@@ -561,10 +579,10 @@ module.exports = grammar({
       'null'
     ),
 
-    numeric_literal: $ => choice(
+    numeric_literal: $ => prec(1, choice(
       $.abstract_literal,
       $.physical_literal
-    ),
+    )),
 
     // 9.3.3 Aggregates
     aggregate: $ => seq(
@@ -574,10 +592,10 @@ module.exports = grammar({
       ')'
     ),
 
-    element_association: $ => seq(
+    element_association: $ => prec(1,seq(
       optional(seq($.choices, '=>')),
       $.expression
-    ),
+    )),
 
     choices: $ => seq(
       $.choice_,
@@ -594,11 +612,12 @@ module.exports = grammar({
     // 9.3.4 Function calls
     function_call: $ => seq(
       $.function_name,
+//      $.function_name,
       //optional(generic_map_aspect),
       //optional(parameter_map_aspect)
     ),
 
-    function_name: $ => $.name,
+    function_name: $ => $._name,
 
     parameter_map_aspect: $ => seq(
       optional(seq('parameter', 'map')),
@@ -609,13 +628,13 @@ module.exports = grammar({
 
     // 9.3.5 Qualified expressions
     qualified_expression: $ => choice(
-      seq($.type_mark, "'", '(', $.expression, ')'),
-      seq($.type_mark, "'", $.aggregate),
-      seq($.type_mark, "'", '(', ')'),
+      seq($._type_mark, "'", '(', $.expression, ')'),
+      seq($._type_mark, "'", $.aggregate),
+      seq($._type_mark, "'", '(', ')'),
     ),
 
     // 9.3.6 Type conversions
-    type_conversion: $ => seq($.type_mark, '(', $.expression, ')'),
+    type_conversion: $ => seq($._type_mark, '(', $.expression, ')'),
 
     // 9.3.7 Allocators
     allocator: $ => choice(
@@ -629,19 +648,19 @@ module.exports = grammar({
 
     // 13.1 Design units
 
-    design_file: $ => prec.right(repeat1($.design_unit)),
+    _design_file: $ => prec.right(repeat1($._design_unit)),
 
-    design_unit: $ => seq(
+    _design_unit: $ => seq(
     //  $.context_clause,
-      $.library_unit
+      $._library_unit
     ),
 
-    library_unit: $ => choice(
-      $.primary_unit,
+    _library_unit: $ => choice(
+      $._primary_unit,
     //  $.secondary_unit
     ),
 
-    primary_unit: $ => choice(
+    _primary_unit: $ => choice(
       $.entity_declaration,
     //  $.configuration_declaration,
     //  $.package_declaration,
@@ -673,7 +692,7 @@ module.exports = grammar({
 
     ///full_type_declaration: $ => seq(
     ///  'type',
-    ///  $.identifier,
+    ///  $._identifier,
     ///  'is',
     ///  $.type_definition
     ///),
@@ -730,7 +749,7 @@ module.exports = grammar({
 
     // 15.4 Identifiers
 
-    identifier: $ => choice(
+    _identifier: $ => choice(
       $.basic_identifier,
       $.extended_identifier,
     ),
