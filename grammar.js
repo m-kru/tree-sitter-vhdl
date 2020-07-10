@@ -572,14 +572,14 @@ module.exports = grammar({
 
     // 9.3 Operands
     literal: $ => choice(
-      $.numeric_literal,
+      $._numeric_literal,
       //$.enumeration_literal,
       //$.string_literal,
       //$.bit_string_literal,
       'null'
     ),
 
-    numeric_literal: $ => prec(1, choice(
+    _numeric_literal: $ => prec(1, choice(
       $.abstract_literal,
       $.physical_literal
     )),
@@ -754,7 +754,7 @@ module.exports = grammar({
       $.extended_identifier,
     ),
 
-    basic_identifier: $ => /([A-Z]|[a-z]|[0-9]|_)+/,
+    basic_identifier: $ => /([A-Z]|[a-z])([A-Z]|[a-z]|[0-9]|_)+/,
 
     extended_identifier: $ => /\\([A-Z]|[a-z]|[0-9]|_|\\)+\\/,
 
