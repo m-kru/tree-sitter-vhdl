@@ -514,12 +514,32 @@ module.exports = grammar({
       $._simple_name,
       //$.operator_symbol,
       //$.character_literal,
-      //$.selected_name,
+      $.selected_name,
       //$.indexed_name,
       //$.slice_name,
       //$.attribute_name,
       //$.external_name,
     )),
+
+    prefix: $ => choice(
+      $._name,
+    //  $.function_call
+    ),
+
+    // 8.3 Selected names
+
+    selected_name: $ => seq(
+      $.prefix,
+      '.',
+      $.suffix
+    ),
+
+    suffix: $ => choice(
+      $._simple_name,
+      $.character_literal,
+      //$.operator_symbol,
+      'all'
+    ),
 
     _simple_name: $ => $._identifier,
 
@@ -697,6 +717,19 @@ module.exports = grammar({
     ),
 
     // ########################################################################
+    // 12 Scope and visibility
+    // ########################################################################
+
+    // 12.4 Use clauses
+
+    use_clause: $ => seq(
+      'use',
+      $.selected_name,
+      repeat(seq(',', $.selected_name)),
+      $._semicolon
+    ),
+
+    // ########################################################################
     // 13 Design units and their analysis
     // ########################################################################
 
@@ -705,7 +738,7 @@ module.exports = grammar({
     _design_file: $ => prec.right(repeat1($._design_unit)),
 
     _design_unit: $ => seq(
-    //  $.context_clause,
+      optional($.context_clause),
       $._library_unit
     ),
 
@@ -728,16 +761,38 @@ module.exports = grammar({
     //  $.package_body
     //),
 
-    // 13.4 Context clauses
-    //context_clause: $ => repeat(
-    //  $.context_item
-    //),
+    // 13.2 Design libraries
 
-    //context_item: $ => choice(
-    //  $.library_clause,
-    //  $.use_clause,
-    //  $.context_reference
-    //),
+    library_clause: $ => seq(
+      'library',
+      $.logical_name_list,
+      $._semicolon
+    ),
+
+    logical_name_list: $=> seq(
+      $._logical_name,
+      repeat(seq(',', $._logical_name))
+    ),
+
+    _logical_name: $ => $._identifier,
+
+    // 13.4 Context clauses
+    context_clause: $ => repeat1(
+      $.context_item
+    ),
+
+    context_item: $ => choice(
+      $.library_clause,
+      $.use_clause,
+      $.context_reference
+    ),
+
+    context_reference: $ => seq(
+      'context',
+      $.selected_name,
+      repeat(seq(',', $.selected_name)),
+      $._semicolon
+    ),
 
     //type_declaration: $ => choice(
     //  $.full_type_declaration,
