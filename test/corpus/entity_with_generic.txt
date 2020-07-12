@@ -5,7 +5,9 @@ Entity with generic
 entity foo is
   generic(
     WIDTH           : natural := 8; -- data width
-    REGISTER_OUTPUT : boolean := true
+    REGISTER_OUTPUT : boolean := true;
+    type              data_type;
+    function increment ( x : data_type ) return data_type
   );
 end;
 

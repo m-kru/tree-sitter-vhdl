@@ -48,6 +48,29 @@ module.exports = grammar({
     entity_simple_name: $ => $._identifier,
 
     // ########################################################################
+    // 4 Subprograms and packages
+    // ########################################################################
+
+    // 4.2 Subprogram declarations
+
+    _designator: $ => choice(
+      $._identifier,
+      //$.operator_symbol
+    ),
+
+    // 4.2.2 Formal parameters
+
+    // 4.2.2.1 Formal parameter lists
+
+    _formal_parameter_list: $=>  $.parameter_interface_list,
+
+    parameter_interface_list: $ => seq(
+      $.interface_object_declaration,
+      repeat(seq(';', $.interface_object_declaration)),
+      optional($._semicolon)
+    ),
+
+    // ########################################################################
     // 5 Types
     // ########################################################################
 
@@ -333,7 +356,7 @@ module.exports = grammar({
     interface_declaration: $ => choice(
       $.interface_object_declaration,
       $.interface_type_declaration,
-      //$.interface_subprogram_declaration,
+      $.interface_subprogram_declaration,
       //$.interface_package_declaration,
     ),
 
@@ -346,14 +369,14 @@ module.exports = grammar({
       $.interface_file_declaration,
     ),
     
-    interface_constant_declaration: $ => seq(
+    interface_constant_declaration: $ => prec(2,seq(
       optional('constant'),
       $.identifier_list,
       ':',
       optional('in'),
       $._interface_type_indication,
       optional(seq(':=', $.static_conditional_expression))
-    ),
+    )),
 
     static_conditional_expression: $ => $.conditional_expression,
 
@@ -366,14 +389,14 @@ module.exports = grammar({
 
     signal_mode_indication: $ => $.mode_indication,
 
-    interface_variable_declaration: $ => seq(
+    interface_variable_declaration: $ => prec(1,seq(
       optional('variable'),
       $.identifier_list,
       ':',
       optional($.mode),
       $._interface_type_indication,
       optional(seq(':=', $.static_conditional_expression))
-    ),
+    )),
 
     interface_file_declaration: $ => seq(
       'file',
@@ -399,7 +422,7 @@ module.exports = grammar({
       optional(seq(':=', $.static_conditional_expression))
     ),
 
-    mode: $ => choice('in', 'out', 'inout', 'buffer', 'linkage'),
+    mode: $ => prec.left(choice('in', 'out', 'inout', 'buffer', 'linkage')),
 
     //mode_view_indication: $ => (
     //  $.record_mode_view_indication,
@@ -414,6 +437,37 @@ module.exports = grammar({
       'type',
       $._identifier,
       optional(seq('is', $.incomplete_type_definition))
+    ),
+
+    // 6.5.4 Interface subprogram declarations
+    interface_subprogram_declaration: $ => seq(
+      $._interface_subprogram_specification,
+      optional(seq('is', $.interface_subprogram_default))
+    ),
+
+    _interface_subprogram_specification: $ => choice(
+      $.interface_procedure_specification,
+      $.interface_function_specification
+    ),
+
+    interface_procedure_specification: $ => seq(
+      'procedure',
+      $._designator,
+      optional(seq(optional('parameter'), '(',  $._formal_parameter_list, ')'))
+    ),
+
+    interface_function_specification: $ => seq(
+      optional(choice('pure', 'impure')),
+      'function',
+      $._designator,
+      optional(seq(optional('parameter'), '(', $._formal_parameter_list, ')')),
+      'return',
+      $._type_mark
+    ),
+
+    interface_subprogram_default: $=> choice(
+      $._name,
+      seq('<', '>')
     ),
 
     // 6.5.6 Interface lists
@@ -446,8 +500,8 @@ module.exports = grammar({
 
     generic_interface_element: $ => choice(
       $.interface_constant_declaration,
-      //$.interface_type_declaration,
-      //$.interface_subprogram_declaration,
+      $.interface_type_declaration,
+      $.interface_subprogram_declaration,
     ),
 
     // ########################################################################
@@ -754,7 +808,7 @@ module.exports = grammar({
       $.extended_identifier,
     ),
 
-    basic_identifier: $ => /([A-Z]|[a-z])([A-Z]|[a-z]|[0-9]|_)+/,
+    basic_identifier: $ => /([A-Z]|[a-z])([A-Z]|[a-z]|[0-9]|_)*/,
 
     extended_identifier: $ => /\\([A-Z]|[a-z]|[0-9]|_|\\)+\\/,
 
