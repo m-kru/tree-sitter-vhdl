@@ -752,7 +752,7 @@ module.exports = grammar({
     //  $.configuration_declaration,
     //  $.package_declaration,
     //  $.package_instantiation_declaration,
-    //  $.context_declaration,
+      $.context_declaration,
     //  //$.PSL_verification_unit
     ),
 
@@ -776,10 +776,25 @@ module.exports = grammar({
 
     _logical_name: $ => $._identifier,
 
-    // 13.4 Context clauses
-    context_clause: $ => repeat1(
-      $.context_item
+    // 13.3 Context declarations
+
+    context_declaration: $ => seq(
+      'context',
+      $._identifier,
+      'is',
+      $.context_clause,
+      'end',
+      optional('context'),
+      optional($._context_simple_name),
+      $._semicolon
     ),
+
+    _context_simple_name: $ => $._simple_name,
+
+    // 13.4 Context clauses
+    context_clause: $ => prec.left(repeat1(
+      $.context_item
+    )),
 
     context_item: $ => choice(
       $.library_clause,

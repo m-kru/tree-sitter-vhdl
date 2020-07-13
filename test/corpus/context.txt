@@ -1,0 +1,12 @@
+=======
+Context
+=======
+
+context uvvm_util_context is
+  library uvvm_util;
+  use uvvm_util.types_pkg.all;
+  use uvvm_util.adaptations_pkg.all;
+  use uvvm_util.methods_pkg.all;
+end context;
+
+---
