@@ -135,7 +135,8 @@ module.exports = grammar({
     index_subtype_definition: $ => seq(
       $._type_mark,
       'range',
-      '<>'
+      '<',
+      '>'
     ),
 
     array_constraint: $ => prec.left(seq(
