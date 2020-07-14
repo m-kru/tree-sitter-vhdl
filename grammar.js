@@ -25,7 +25,7 @@ module.exports = grammar({
     entity_declaration: $ => prec.right(seq(
       'entity', $._identifier, 'is',
       optional($._formal_generic_clause),
-      //optional($.formal_port_clause),
+      optional($._formal_port_clause),
       //$.entity_declarative_part,
       //optional(seq('begin', $.entity_statement_part)),
       'end', optional('entity'), optional($.entity_simple_name),
@@ -44,6 +44,8 @@ module.exports = grammar({
     //),
 
     _formal_generic_clause: $ => $.generic_clause,
+
+    _formal_port_clause: $ => $.port_clause,
 
     entity_simple_name: $ => $._identifier,
 
@@ -370,7 +372,7 @@ module.exports = grammar({
       $.interface_file_declaration,
     ),
     
-    interface_constant_declaration: $ => prec(2,seq(
+    interface_constant_declaration: $ => prec(3,seq(
       optional('constant'),
       $.identifier_list,
       ':',
@@ -381,14 +383,14 @@ module.exports = grammar({
 
     static_conditional_expression: $ => $.conditional_expression,
 
-    interface_signal_declaration: $ => seq(
+    interface_signal_declaration: $ => prec(1,seq(
       optional('signal'),
       $.identifier_list,
       ':',
-      $.signal_mode_indication
-    ),
+      $._signal_mode_indication
+    )),
 
-    signal_mode_indication: $ => $.mode_indication,
+    _signal_mode_indication: $ => $._mode_indication,
 
     interface_variable_declaration: $ => prec(1,seq(
       optional('variable'),
@@ -411,7 +413,7 @@ module.exports = grammar({
       $.unspecified_type_indication
     ),
 
-    mode_indication: $ => choice(
+    _mode_indication: $ => choice(
       $.simple_mode_indication,
       //$.mode_view_indication
     ),
@@ -505,6 +507,27 @@ module.exports = grammar({
       $.interface_subprogram_declaration,
     ),
 
+    // 6.5.6.3 Port clauses
+
+    port_clause: $ => seq(
+      'port',
+      '(',
+      $.port_interface_list,
+      ')',
+      $._semicolon
+    ),
+
+    port_interface_list: $ => seq(
+      $.port_interface_element,
+      repeat(seq(';', $.port_interface_element)),
+      optional($._semicolon)
+    ),
+
+    port_interface_element: $ => choice(
+      $.interface_signal_declaration,
+      $.interface_variable_declaration,
+    ),
+
     // ########################################################################
     // 8 Names
     // ########################################################################
@@ -514,7 +537,7 @@ module.exports = grammar({
     _name: $ => prec(1,choice(
       $._simple_name,
       //$.operator_symbol,
-      //$.character_literal,
+      $.character_literal,
       $.selected_name,
       //$.indexed_name,
       //$.slice_name,

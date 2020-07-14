@@ -1,0 +1,11 @@
+================
+Entity with port
+================
+
+entity foo is
+  port (
+    clk_i   : in  std_logic
+  );
+end entity foo;
+
+---
