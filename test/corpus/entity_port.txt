@@ -1,6 +1,6 @@
-================
-Entity with port
-================
+===========
+Entity port
+===========
 
 entity foo is
   port (

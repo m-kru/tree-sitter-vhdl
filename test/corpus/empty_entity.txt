@@ -1,0 +1,14 @@
+============
+Empty entity
+============
+
+entity foo is
+end;
+
+entity foo is
+end entity;
+
+entity foo is
+end entity foo;
+
+---

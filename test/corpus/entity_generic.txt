@@ -1,6 +1,6 @@
-===================
-Entity with generic
-===================
+==============
+Entity generic
+==============
 
 entity foo is
   generic(
