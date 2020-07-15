@@ -15,6 +15,47 @@ module.exports = grammar({
     _semicolon: $ => seq(';'),
 
     // ########################################################################
+    // Section for names not explicitly defined in the LRM, but used
+    // in the rules definitions. They usually result from the 1.3.2 g). 
+    // ########################################################################
+
+    entity_simple_name: $ => $._simple_name,
+
+    _formal_generic_clause: $ => $.generic_clause,
+
+    _formal_port_clause: $ => $.port_clause,
+
+    _return_identifier: $ => $._identifier,
+
+    record_type_simple_name: $ => $._simple_name,
+
+    record_element_simple_name: $ => $._simple_name,
+
+    file_incomplete_type_mark: $ => $.incomplete_type_mark,
+
+    resolution_function_name: $ => $._name,
+
+    static_conditional_expression: $ => $.conditional_expression,
+
+    _signal_mode_indication: $ => $._mode_indication,
+
+    signal_name: $ => $._name,
+
+    variable_name: $ => $._name,
+
+    file_name: $ => $._name,
+
+    subprogram_name: $ => $._name,
+
+    instantiated_package_name: $ => $._name,
+
+    _generic_association_list: $ => $.association_list,
+
+    function_name: $ => $._name,
+
+    _context_simple_name: $ => $._simple_name,
+
+    // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
 
@@ -42,12 +83,6 @@ module.exports = grammar({
     //  optional($.formal_generic_clause),
     //  optional($.formal_port_clause)
     //),
-
-    _formal_generic_clause: $ => $.generic_clause,
-
-    _formal_port_clause: $ => $.port_clause,
-
-    entity_simple_name: $ => $._identifier,
 
     // 3.2.3 Entity declarative part
 
@@ -112,8 +147,6 @@ module.exports = grammar({
       optional(seq($._return_identifier, 'of')),
       $._type_mark
     ),
-
-    _return_identifier: $ => $._identifier,
 
     subprogram_header: $ => seq(
       'generic',
@@ -246,8 +279,6 @@ module.exports = grammar({
       'end', 'record', optional($.record_type_simple_name)
     ),
 
-    record_type_simple_name: $ => $._simple_name,
-
     element_declaration: $ => seq(
       $.identifier_list,
       ':',
@@ -273,8 +304,6 @@ module.exports = grammar({
       $.record_element_simple_name,
       $.element_constraint
     ),
-
-    record_element_simple_name: $ => $._simple_name,
 
     // 5.8 Unspecified types
 
@@ -355,8 +384,6 @@ module.exports = grammar({
       $.file_incomplete_type_mark
     ),
 
-    file_incomplete_type_mark: $ => $.incomplete_type_mark,
-
     // ########################################################################
     // 6 Declarations
     // ########################################################################
@@ -382,8 +409,6 @@ module.exports = grammar({
       seq('(', $.element_resolution, ')')
     ),
 
-    resolution_function_name: $ => $._name,
-
     element_resolution: $ => choice(
       $.array_element_resolution,
       $.record_resolution
@@ -400,8 +425,6 @@ module.exports = grammar({
       $.record_element_simple_name,
       $.resolution_indication
     ),
-
-    record_element_simple_name: $ => $._simple_name,
 
     // While syntax tree is being built there is no way to distinguish
     // types names and subtype names. This is why following rules from
@@ -455,16 +478,12 @@ module.exports = grammar({
       optional(seq(':=', $.static_conditional_expression))
     )),
 
-    static_conditional_expression: $ => $.conditional_expression,
-
     interface_signal_declaration: $ => prec(2,seq(
       optional('signal'),
       $.identifier_list,
       ':',
       $._signal_mode_indication
     )),
-
-    _signal_mode_indication: $ => $._mode_indication,
 
     interface_variable_declaration: $ => prec(1,seq(
       optional('variable'),
@@ -650,24 +669,12 @@ module.exports = grammar({
       'open'
     ),
 
-    signal_name: $ => $._name,
-
-    variable_name: $ => $._name,
-
-    file_name: $ => $._name,
-
-    subprogram_name: $ => $._name,
-
-    instantiated_package_name: $ => $._name,
-
     // 6.5.7.2
 
     generic_map_aspect: $ => seq(
       'generic', 'map',
       '(', $._generic_association_list, ')'
     ),
-
-    _generic_association_list: $ => $.association_list,
 
     // ########################################################################
     // 8 Names
@@ -856,8 +863,6 @@ module.exports = grammar({
       //optional(parameter_map_aspect)
     )),
 
-    function_name: $ => $._name,
-
     parameter_map_aspect: $ => seq(
       optional(seq('parameter', 'map')),
       '(',
@@ -953,8 +958,6 @@ module.exports = grammar({
       optional($._context_simple_name),
       $._semicolon
     ),
-
-    _context_simple_name: $ => $._simple_name,
 
     // 13.4 Context clauses
     context_clause: $ => prec.left(repeat1(
