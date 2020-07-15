@@ -4,7 +4,10 @@ Entity with port
 
 entity foo is
   port (
-    clk_i   : in  std_logic
+    clk_i   : in  std_logic;
+    reset_i : in  std_logic := '0';
+    d_i     :     std_logic; -- Default mode is 'in'.
+    q_i     : out std_logic
   );
 end entity foo;
 

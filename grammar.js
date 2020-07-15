@@ -383,7 +383,7 @@ module.exports = grammar({
 
     static_conditional_expression: $ => $.conditional_expression,
 
-    interface_signal_declaration: $ => prec(1,seq(
+    interface_signal_declaration: $ => prec(2,seq(
       optional('signal'),
       $.identifier_list,
       ':',
@@ -418,12 +418,12 @@ module.exports = grammar({
       //$.mode_view_indication
     ),
 
-    simple_mode_indication: $ => seq(
+    simple_mode_indication: $ => prec(2,seq(
       optional($.mode),
       $._interface_type_indication,
       optional('bus'),
       optional(seq(':=', $.static_conditional_expression))
-    ),
+    )),
 
     mode: $ => prec.left(choice('in', 'out', 'inout', 'buffer', 'linkage')),
 
@@ -879,14 +879,16 @@ module.exports = grammar({
 
     // 15.2 Character set
     basic_graphic_character: $ => choice(
-    //  $.upper_case_letter,
+      $.upper_case_letter,
       $.digit,
     //  $.special_character,
     //  $.space_character
     ),
 
-    graphic_character: $ => choice(
-      //$.basic_graphic_character,
+    upper_case_letter: $ => /[A-Z]/,
+
+    _graphic_character: $ => choice(
+      $.basic_graphic_character,
       $.lower_case_letter,
       //$.other_special_character
     ),
@@ -927,11 +929,11 @@ module.exports = grammar({
 
     // 15.6 Character literals
 
-    character_literal: $ => seq("'", $.graphic_character, "'"),
+    character_literal: $ => seq('\'', $._graphic_character, '\''),
 
     // 15.7 String literals
 
-    string_literal: $ => seq('"', repeat($.graphic_character), '"'),
+    string_literal: $ => seq('"', repeat($._graphic_character), '"'),
 
     // 15.9 Comments
 
