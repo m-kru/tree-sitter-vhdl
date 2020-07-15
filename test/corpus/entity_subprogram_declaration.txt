@@ -1,0 +1,13 @@
+=============================
+Entity subprogram declaration
+=============================
+
+entity foo is
+  procedure proc_simple;
+  procedure proc_complex generic (G : integer) parameter (signal io: inout std_logic; constant C : in integer);
+
+  function func_simple return natural;
+  impure function func_complex generic(G : positive) (a : natural; b: positive) return foo of natural;
+end;
+
+---

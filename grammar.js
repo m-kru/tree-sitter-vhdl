@@ -26,7 +26,7 @@ module.exports = grammar({
       'entity', $._identifier, 'is',
       optional($._formal_generic_clause),
       optional($._formal_port_clause),
-      //$.entity_declarative_part,
+      repeat($._entity_declarative_item),
       //optional(seq('begin', $.entity_statement_part)),
       'end', optional('entity'), optional($.entity_simple_name),
       $._semicolon
@@ -49,16 +49,84 @@ module.exports = grammar({
 
     entity_simple_name: $ => $._identifier,
 
+    // 3.2.3 Entity declarative part
+
+    _entity_declarative_item: $ => choice(
+      $.subprogram_declaration,
+      //$.subprogram_body,
+      //$.subprogram_instantiation_declaration,
+      //$.package_declaration,
+      //$.package_body,
+      //$.package_instantiation_declaration,
+      //$.type_declaration,
+      //$.subtype_declaration,
+      //$.mode_view_declaration,
+      //$.constant_declaration,
+      //$.signal_declaration,
+      //$.shared_variable_declaration,
+      //$.file_declaration,
+      //$.alias_declaration,
+      //$.attribute_declaration,
+      //$.attribute_specification,
+      //$.disconnection_specification,
+      //$.use_clause,
+      //$.group_template_declaration,
+      //$.group_declaration,
+      //$.PSL_Property_Declaration,
+      //$.PSL_Sequence_Declaration,
+      //$.PSL_Clock_Declaration,
+    ),
+
     // ########################################################################
     // 4 Subprograms and packages
     // ########################################################################
 
     // 4.2 Subprogram declarations
 
+    // 4.2.1 General
+
+    subprogram_declaration: $ => seq(
+      $._subprogram_specification ,
+      $._semicolon
+    ),
+
+    _subprogram_specification: $ => choice(
+      $.procedure_specification,
+      $.function_specification
+    ),
+
+    procedure_specification: $ => seq(
+      'procedure',
+      $._designator,
+      optional($.subprogram_header),
+      optional(seq(optional('parameter'), '(', $._formal_parameter_list, ')'))
+    ),
+
+    function_specification: $ => seq(
+      optional(choice('pure', 'impure')),
+      'function',
+      $._designator,
+      optional($.subprogram_header),
+      optional(seq(optional('parameter'), '(', $._formal_parameter_list, ')')),
+      'return',
+      optional(seq($._return_identifier, 'of')),
+      $._type_mark
+    ),
+
+    _return_identifier: $ => $._identifier,
+
+    subprogram_header: $ => seq(
+      'generic',
+      '(', $._generic_list, ')',
+      optional($.generic_map_aspect)
+    ),
+
     _designator: $ => choice(
       $._identifier,
-      //$.operator_symbol
+      $.operator_symbol
     ),
+
+    operator_symbol: $ => $.string_literal,
 
     // 4.2.2 Formal parameters
 
@@ -71,6 +139,12 @@ module.exports = grammar({
       repeat(seq(';', $.interface_object_declaration)),
       optional($._semicolon)
     ),
+
+    // 4.5.3 Signatures
+
+    // signature definition is really weird in the standard. Optionals in optional,
+    // plus in other definitions it is always used as optional.
+    //$.signature: $ => 
 
     // ########################################################################
     // 5 Types
@@ -490,10 +564,12 @@ module.exports = grammar({
     generic_clause: $ => seq(
       'generic',
       '(',
-      $.generic_interface_list,
+      $._generic_list,
       ')',
       $._semicolon
     ),
+
+    _generic_list: $=> $.generic_interface_list,
 
     generic_interface_list: $ => seq(
       $.generic_interface_element,
@@ -527,6 +603,71 @@ module.exports = grammar({
       $.interface_signal_declaration,
       $.interface_variable_declaration,
     ),
+
+    // 6.5.7 Association lists
+
+    // 6.5.7.1 General
+
+    association_list: $ => seq(
+      $.association_element,
+      repeat(seq(',', $.association_element))
+    ),
+
+    association_element: $ => seq(
+      optional(seq($.formal_part, '=>')),
+      $.actual_part
+    ),
+
+    formal_part: $ => choice(
+      $.formal_designator,
+      seq($.function_name, '(', $.formal_designator, ')'),
+      seq($._type_mark, '(', $.formal_designator, ')')
+    ),
+
+    formal_designator: $ => choice(
+      // seq($.generic_name, optional($.signature)),
+      // port_name and parameter_name can't be distinguished on sytnax parsing.
+      // This is why name has to be used.
+      //$.port_name,
+      //$.parameter_name
+      $._name
+    ),
+
+    actual_part: $ => choice(
+      $.actual_designator,
+      seq($.function_name, '(', $.actual_designator, ')'),
+      seq($._type_mark, '(', $.actual_designator, ')')
+    ),
+
+    actual_designator: $ => choice(
+      seq(optional('inertial'), $.conditional_expression),
+      $.signal_name,
+      $.variable_name,
+      $.file_name,
+      $.subtype_indication,
+      $.subprogram_name,
+      $.instantiated_package_name,
+      'open'
+    ),
+
+    signal_name: $ => $._name,
+
+    variable_name: $ => $._name,
+
+    file_name: $ => $._name,
+
+    subprogram_name: $ => $._name,
+
+    instantiated_package_name: $ => $._name,
+
+    // 6.5.7.2
+
+    generic_map_aspect: $ => seq(
+      'generic', 'map',
+      '(', $._generic_association_list, ')'
+    ),
+
+    _generic_association_list: $ => $.association_list,
 
     // ########################################################################
     // 8 Names
@@ -584,10 +725,10 @@ module.exports = grammar({
       'unaffected'
     ),
 
-    conditional_expression: $ => seq(
+    conditional_expression: $ => prec.right(seq(
       $.expression,
       repeat(seq('when', $.condition, 'else', $.expression))
-    ),
+    )),
 
     expression: $ => choice(
       seq($.condition_operator, $.primary),
@@ -708,12 +849,12 @@ module.exports = grammar({
     ) ,
 
     // 9.3.4 Function calls
-    function_call: $ => seq(
+    function_call: $ => prec.right(seq(
       $.function_name,
 //      $.function_name,
       //optional(generic_map_aspect),
       //optional(parameter_map_aspect)
-    ),
+    )),
 
     function_name: $ => $._name,
 
