@@ -1,0 +1,11 @@
+============================
+Entity attribute declaration
+============================
+
+entity foo is
+
+  attribute PIN_NO: POSITIVE;
+
+end;
+
+---

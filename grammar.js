@@ -112,10 +112,10 @@ module.exports = grammar({
       //$.shared_variable_declaration,
       $.file_declaration,
       $.alias_declaration,
-      //$.attribute_declaration,
+      $.attribute_declaration,
       //$.attribute_specification,
       //$.disconnection_specification,
-      //$.use_clause,
+      $.use_clause,
       //$.group_template_declaration,
       //$.group_declaration,
       //$.PSL_Property_Declaration,
@@ -849,6 +849,16 @@ module.exports = grammar({
       $._identifier,
       $.character_literal,
       $.operator_symbol
+    ),
+
+    // 6.7 Attribute declarations
+
+    attribute_declaration: $ => seq(
+      'attribute',
+      $._identifier,
+      ':',
+      $._type_mark,
+      $._semicolon
     ),
 
     // ########################################################################
