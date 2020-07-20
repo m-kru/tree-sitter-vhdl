@@ -1,0 +1,14 @@
+==========================
+Entity subtype declaration
+==========================
+
+entity foo is
+
+  subtype BUS_VAL is integer range 0 to 255;
+
+  subtype MY_LOGIC is std_ulogic range 'X' to 'Z';
+
+end;
+
+---
+

@@ -105,7 +105,7 @@ module.exports = grammar({
       //$.package_body,
       //$.package_instantiation_declaration,
       $.type_declaration,
-      //$.subtype_declaration,
+      $.subtype_declaration,
       //$.mode_view_declaration,
       $.constant_declaration,
       $.signal_declaration,
