@@ -9,6 +9,11 @@ module.exports = grammar({
 //    $.block_comment
   ],
 
+  conflicts: $ => [
+    [$._type_mark, $.prefix],
+    [$.unit_name, $.prefix],
+  ],
+
   rules: {
     source_file: $ => seq($._design_file),
 
@@ -798,8 +803,8 @@ module.exports = grammar({
       $.operator_symbol,
       $.character_literal,
       $.selected_name,
-      //$.indexed_name,
-      //$.slice_name,
+      $.indexed_name,
+      $.slice_name,
       //$.attribute_name,
       //$.external_name,
     )),
@@ -825,6 +830,25 @@ module.exports = grammar({
     ),
 
     _simple_name: $ => $._identifier,
+
+    // 8.4 Indexed names
+
+    indexed_name: $ => seq(
+      $.prefix,
+      '(',
+      $.expression,
+      repeat(seq(',', $.expression)),
+      ')',
+    ),
+
+    // 8.5 Slice names
+
+    slice_name: $ => seq(
+      $.prefix,
+      '(',
+      $.discrete_range,
+      ')'
+    ),
 
     // ########################################################################
     // 9 Expressions

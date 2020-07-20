@@ -6,7 +6,7 @@ entity foo is
 
   alias STD_BIT is STD.STANDARD.BIT;
 
-  -- alias EXPONENT: BIT_VECTOR (1 to 7) is REAL_NUMBER (1 to 7);
+  alias EXPONENT: BIT_VECTOR (1 to 7) is REAL_NUMBER (1 to 7);
 
 end;
 
