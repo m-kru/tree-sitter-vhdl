@@ -104,7 +104,7 @@ module.exports = grammar({
       //$.subtype_declaration,
       //$.mode_view_declaration,
       $.constant_declaration,
-      //$.signal_declaration,
+      $.signal_declaration,
       //$.shared_variable_declaration,
       //$.file_declaration,
       $.alias_declaration,
@@ -568,6 +568,20 @@ module.exports = grammar({
       optional(seq(':=', $.conditional_expression)),
       $._semicolon
     ),
+
+    // 6.4.2.3 Signal declarations
+
+    signal_declaration: $ => seq(
+      'signal',
+      $.identifier_list,
+      ':',
+      $.subtype_indication,
+      optional($.signal_kind),
+      optional(seq(':=', $.conditional_expression)),
+      $._semicolon
+    ),
+
+    signal_kind: $ => choice('register', 'bus'),
 
     // 6.5 Interface declarations
 

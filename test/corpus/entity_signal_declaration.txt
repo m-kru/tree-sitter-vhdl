@@ -1,0 +1,11 @@
+=========================
+Entity signal declaration
+=========================
+
+entity foo is
+
+  signal Si: STANDARD.BIT_VECTOR (1 to 10);
+
+end;
+
+---
