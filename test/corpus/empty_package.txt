@@ -1,0 +1,17 @@
+=============
+Empty package
+=============
+
+package my_pkg is
+
+end;
+
+package my_pkg is
+
+end package;
+
+package my_pkg is
+
+end package my_pkg;
+
+---

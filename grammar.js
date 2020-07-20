@@ -213,7 +213,7 @@ module.exports = grammar({
     _package_declarative_item: $ => choice(
       $.subprogram_declaration,
       //$.subprogram_instantiation_declaration,
-      //$.package_declaration,
+      $.package_declaration,
       //$.package_instantiation_declaration,
       $.type_declaration,
       $.subtype_declaration,
@@ -1165,7 +1165,7 @@ module.exports = grammar({
     _primary_unit: $ => choice(
       $.entity_declaration,
     //  $.configuration_declaration,
-    //  $.package_declaration,
+      $.package_declaration,
     //  $.package_instantiation_declaration,
       $.context_declaration,
     //  //$.PSL_verification_unit
