@@ -66,6 +66,8 @@ module.exports = grammar({
 
     _string_expression: $ => $.expression,
 
+    _package_simple_name: $ => $._simple_name,
+
     // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
@@ -101,7 +103,7 @@ module.exports = grammar({
       $.subprogram_declaration,
       //$.subprogram_body,
       //$.subprogram_instantiation_declaration,
-      //$.package_declaration,
+      $.package_declaration,
       //$.package_body,
       //$.package_instantiation_declaration,
       $.type_declaration,
@@ -191,6 +193,45 @@ module.exports = grammar({
       optional(seq($._type_mark, repeat(seq(',', $._type_mark)))),
       optional(seq('return', $._type_mark)),
       ']'
+    ),
+
+    // 4.7 Package declarations
+
+    package_declaration: $ => seq(
+      'package', $._identifier, 'is',
+      optional($.package_header),
+      repeat($._package_declarative_item),
+      'end', optional('package'), optional($._package_simple_name),
+      $._semicolon
+    ),
+
+    package_header: $ => seq(
+      $.generic_clause,
+      optional(seq($.generic_map_aspect, $._semicolon))
+    ),
+
+    _package_declarative_item: $ => choice(
+      $.subprogram_declaration,
+      //$.subprogram_instantiation_declaration,
+      //$.package_declaration,
+      //$.package_instantiation_declaration,
+      $.type_declaration,
+      $.subtype_declaration,
+      //$.mode_view_declaration,
+      $.constant_declaration,
+      $.signal_declaration,
+      //$.shared_variable_declaration,
+      $.file_declaration,
+      $.alias_declaration,
+      //$.component_declaration,
+      $.attribute_declaration,
+      //$.attribute_specification,
+      //$.disconnection_specification,
+      $.use_clause,
+      //$.group_template_declaration,
+      //$.group_declaration,
+      //$.PSL_Property_Declaration,
+      //$.PSL_Sequence_Declaration
     ),
 
     // ########################################################################
