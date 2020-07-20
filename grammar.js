@@ -62,6 +62,10 @@ module.exports = grammar({
 
     physical_type_simple_name: $ => $._simple_name,
 
+    _file_open_kind_expression: $ => $.expression,
+
+    _string_expression: $ => $.expression,
+
     // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
@@ -106,7 +110,7 @@ module.exports = grammar({
       $.constant_declaration,
       $.signal_declaration,
       //$.shared_variable_declaration,
-      //$.file_declaration,
+      $.file_declaration,
       $.alias_declaration,
       //$.attribute_declaration,
       //$.attribute_specification,
@@ -582,6 +586,25 @@ module.exports = grammar({
     ),
 
     signal_kind: $ => choice('register', 'bus'),
+
+    // 6.4.2.5 File declarations
+
+    file_declaration: $ => seq(
+      'file',
+      $.identifier_list,
+      ':',
+      $.subtype_indication,
+      optional($.file_open_information),
+      $._semicolon
+    ),
+
+    file_open_information: $ => seq(
+      optional(seq('open', $._file_open_kind_expression)),
+      'is',
+       $._file_logical_name
+    ),
+
+    _file_logical_name: $ => $.string_literal,
 
     // 6.5 Interface declarations
 
@@ -1213,7 +1236,7 @@ module.exports = grammar({
 
     // 15.7 String literals
 
-    string_literal: $ => seq('"', repeat($._graphic_character), '"'),
+    string_literal: $ => /\".*\"/,
 
     // 15.9 Comments
 
