@@ -103,7 +103,7 @@ module.exports = grammar({
       $.type_declaration,
       //$.subtype_declaration,
       //$.mode_view_declaration,
-      //$.constant_declaration,
+      $.constant_declaration,
       //$.signal_declaration,
       //$.shared_variable_declaration,
       //$.file_declaration,
@@ -545,6 +545,28 @@ module.exports = grammar({
     element_constraint: $ => choice(
       $.array_constraint,
       $.record_constraint
+    ),
+
+    // 6.4.2 Object declarations
+
+    // 6.4.2.1 General
+
+    object_declaration: $ => choice(
+      $.constant_declaration,
+      //$.signal_declaration,
+      //$.variable_declaration,
+      //$.file_declaration
+    ),
+
+    // 6.4.2.2 Constant declarations
+
+    constant_declaration: $ => seq(
+      'constant',
+      $.identifier_list,
+      ':',
+      $.subtype_indication,
+      optional(seq(':=', $.conditional_expression)),
+      $._semicolon
     ),
 
     // 6.5 Interface declarations

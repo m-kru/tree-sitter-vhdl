@@ -1,0 +1,11 @@
+===========================
+Entity constant declaration
+===========================
+
+entity foo is
+
+  constant CON1, CON2 : integer := 1;
+
+end;
+
+---
