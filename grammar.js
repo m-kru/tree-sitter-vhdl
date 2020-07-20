@@ -774,7 +774,7 @@ module.exports = grammar({
 
     _name: $ => prec(1,choice(
       $._simple_name,
-      //$.operator_symbol,
+      $.operator_symbol,
       $.character_literal,
       $.selected_name,
       //$.indexed_name,
@@ -799,7 +799,7 @@ module.exports = grammar({
     suffix: $ => choice(
       $._simple_name,
       $.character_literal,
-      //$.operator_symbol,
+      $.operator_symbol,
       'all'
     ),
 
