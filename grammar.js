@@ -102,7 +102,7 @@ module.exports = grammar({
       //$.signal_declaration,
       //$.shared_variable_declaration,
       //$.file_declaration,
-      //$.alias_declaration,
+      $.alias_declaration,
       //$.attribute_declaration,
       //$.attribute_specification,
       //$.disconnection_specification,
@@ -177,9 +177,12 @@ module.exports = grammar({
 
     // 4.5.3 Signatures
 
-    // signature definition is really weird in the standard. Optionals in optional,
-    // plus in other definitions it is always used as optional.
-    //$.signature: $ => 
+    signature: $ => seq(
+      '[',
+      optional(seq($._type_mark, repeat(seq(',', $._type_mark)))),
+      optional(seq('return', $._type_mark)),
+      ']'
+    ),
 
     // ########################################################################
     // 5 Types
@@ -764,6 +767,24 @@ module.exports = grammar({
     generic_map_aspect: $ => seq(
       'generic', 'map',
       '(', $._generic_association_list, ')'
+    ),
+
+    // 6.6 Alias declarations
+
+    alias_declaration: $ => seq(
+      'alias',
+      $._alias_designator,
+      optional(seq(':', $.subtype_indication)),
+      'is',
+      $._name,
+      optional($.signature),
+      $._semicolon
+    ),
+
+    _alias_designator: $ => choice(
+      $._identifier,
+      $.character_literal,
+      $.operator_symbol
     ),
 
     // ########################################################################

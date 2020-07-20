@@ -1,0 +1,9 @@
+============================
+Entity type declaration file
+============================
+
+entity foo is
+  type my_file is file of natural;
+end;
+
+---

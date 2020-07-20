@@ -1,0 +1,27 @@
+==============================
+Entity type declaration scalar
+==============================
+
+entity foo is
+  type my_integer is range 10 to 15E10;
+
+  type my_float is range 0.0 to 1.2;
+
+  type MULTI_LEVEL_LOGIC is (LOW, HIGH, RISING, FALLING, AMBIGUOUS);
+
+  type BIT is ('0' , '1');
+
+  type DURATION is range 0 to 118
+  units
+    fs;
+    ps = 1000 fs;
+    ns = 1000 ps;
+    us = 1000 ns;
+    ms = 1000 us;
+    sec = 1000 ms;
+    min = 60 sec;
+  end units;
+
+end;
+
+---
