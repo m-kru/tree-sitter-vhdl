@@ -55,6 +55,8 @@ module.exports = grammar({
 
     _context_simple_name: $ => $._simple_name,
 
+    physical_type_simple_name: $ => $._simple_name,
+
     // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
@@ -93,7 +95,7 @@ module.exports = grammar({
       //$.package_declaration,
       //$.package_body,
       //$.package_instantiation_declaration,
-      //$.type_declaration,
+      $.type_declaration,
       //$.subtype_declaration,
       //$.mode_view_declaration,
       //$.constant_declaration,
@@ -187,6 +189,16 @@ module.exports = grammar({
 
     // 5.2.1 General
 
+    scalar_type_definition: $ => choice(
+      $.enumeration_type_definition,
+      // Both integer type and floating type have the same definition.
+      // This is why range_constraint has to be used.
+      //$.integer_type_definition,
+      //$.floating_type_definition,
+      $.range_constraint,
+      $.physical_type_definition
+    ),
+
     range_constraint: $ => seq(
       'range',
        $.range
@@ -205,13 +217,61 @@ module.exports = grammar({
       'downto'
     ),
 
+    // 5.2.2 Enumeration types
+
+    // 5.2.2.1 General
+
+    enumeration_type_definition: $ => seq(
+      '(',
+      $.enumeration_literal,
+      repeat(seq(',', $.enumeration_literal)),
+      ')'
+    ),
+
+    enumeration_literal: $ => choice(
+      $._identifier,
+      $.character_literal
+    ),
+
+    // 5.2.3 Integer types
+
+    // 5.2.3.1 General
+
+    integer_type_definition: $ => $.range_constraint,
+
     // 5.2.4 Physical types
 
     // 5.2.4.1 General
 
+    physical_type_definition: $ => seq(
+      $.range_constraint,
+      'units',
+      $.primary_unit_declaration,
+      repeat($.secondary_unit_declaration),
+      'end', 'units', optional($.physical_type_simple_name)
+    ),
+
+    primary_unit_declaration: $ => seq(
+      $._identifier,
+      $._semicolon
+    ),
+
+    secondary_unit_declaration: $ => seq(
+      $._identifier,
+      '=',
+      $.physical_literal,
+      $._semicolon
+    ),
+
     physical_literal: $ => seq(optional($.abstract_literal), $.unit_name),
 
     unit_name: $ => $._name,
+
+    // 5.2.5 Floating-point types
+
+    // 5.2.5.1 General
+
+    floating_type_definition: $ => $.range_constraint,
 
     // 5.3.2 Array types
 
@@ -305,6 +365,12 @@ module.exports = grammar({
       $.element_constraint
     ),
 
+    // 5.5 File types
+
+    // 5.5.1 General
+
+    file_type_definition: $ => seq('file', 'of', $._type_mark),
+
     // 5.8 Unspecified types
 
     // 5.8.1 General
@@ -387,6 +453,30 @@ module.exports = grammar({
     // ########################################################################
     // 6 Declarations
     // ########################################################################
+
+    // 6.2 Type declarations
+
+    type_declaration: $ => choice(
+      $.full_type_declaration,
+      //$.incomplete_type_declaration
+    ),
+
+    full_type_declaration: $ => seq(
+      'type',
+      $._identifier,
+      'is',
+      $.type_definition,
+      $._semicolon
+    ),
+
+    type_definition: $ => choice(
+      $.scalar_type_definition,
+    //  $.composite_type_definition,
+    //  $.access_type_definition,
+      $.file_type_definition,
+    //  $.protected_type_definition,
+    //  $.protected_type_instantiation_definition
+    ),
 
     // 6.3 Subtype declarations
 
@@ -977,43 +1067,6 @@ module.exports = grammar({
       $._semicolon
     ),
 
-    //type_declaration: $ => choice(
-    //  $.full_type_declaration,
-//  //    $.incomplete_type_declaration
-    //),
-
-    ///full_type_declaration: $ => seq(
-    ///  'type',
-    ///  $._identifier,
-    ///  'is',
-    ///  $.type_definition
-    ///),
-
-    //type_definition: $ => choice(
-    //  $.scalar_type_definition,
-    ////  $.composite_type_definition,
-    ////  $.access_type_definition,
-    ////  $.file_type_definition,
-    ////  $.protected_type_definition,
-    ////  $.protected_type_instantiation_definition
-    //),
-
-    //scalar_type_definition: $ => choice(
-    ////  enumeration_type_definition,
-    //  integer_type_definition,
-    ////  floating_type_definition,
-    ////  physical_type_definition
-    //),
-
-    //integer_type_definition: $ => seq(
-    //  $.range_constraint
-    //),
-
-    //range_constraint: $ => seq(
-    //  'range',
-    //  $.range
-    //),
-
     //incomplete_type_declaration: $ => seq(
     //),
     
@@ -1065,11 +1118,13 @@ module.exports = grammar({
     decimal_literal: $ => seq(
       $.integer,
       optional(seq('.', $.integer)),
-      //optional($.exponent)
+      optional($.exponent)
     ),
 
     // TODO: Fix regex for 123_12312_, '_' is not allowed at the end.
     integer: $ => /\d([\d|_])*/,
+
+    exponent: $ => token.immediate(/[E|e][\+-]?\d(\d|_)*/),
 
     // 15.6 Character literals
 
