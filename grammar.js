@@ -68,6 +68,12 @@ module.exports = grammar({
 
     _package_simple_name: $ => $._simple_name,
 
+    _component_simple_name: $ => $._simple_name,
+
+    _local_generic_clause: $ => $.generic_clause,
+
+    _local_port_clause: $ => $.port_clause,
+
     // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
@@ -223,7 +229,7 @@ module.exports = grammar({
       //$.shared_variable_declaration,
       $.file_declaration,
       $.alias_declaration,
-      //$.component_declaration,
+      $.component_declaration,
       $.attribute_declaration,
       //$.attribute_specification,
       //$.disconnection_specification,
@@ -899,6 +905,16 @@ module.exports = grammar({
       $._identifier,
       ':',
       $._type_mark,
+      $._semicolon
+    ),
+
+    // 6.8 Component declarations
+
+    component_declaration: $ => seq(
+      'component', $._identifier, optional('is'),
+      optional($._local_generic_clause),
+      optional($._local_port_clause),
+      'end', optional('component'), optional($._component_simple_name),
       $._semicolon
     ),
 

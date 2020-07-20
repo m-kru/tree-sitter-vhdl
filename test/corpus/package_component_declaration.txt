@@ -1,0 +1,15 @@
+=============================
+Package component declaration
+=============================
+
+package my_pkg is
+
+  component PARITY
+    generic (N : integer);
+    port (A   : in  std_ulogic_vector (N downto 0);
+          ODD : out std_ulogic);
+  end component;
+
+end;
+
+---
