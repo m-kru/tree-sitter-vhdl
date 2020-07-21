@@ -1,0 +1,11 @@
+=====================
+Package body constant
+=====================
+
+package body my_pkg is
+
+  constant MY_CONS : integer := 10;
+
+end;
+
+---
