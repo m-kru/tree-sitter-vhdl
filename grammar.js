@@ -192,6 +192,42 @@ module.exports = grammar({
       optional($._semicolon)
     ),
 
+    // 4.3 Subprogram bodies
+
+    subprogram_body: $ => seq(
+      $._subprogram_specification,
+      'is',
+      repeat($._subprogram_declarative_item),
+      'begin',
+      repeat($.sequential_statement),
+      'end',
+      optional($.subprogram_kind),
+      optional($._designator),
+      $._semicolon
+    ),
+
+    _subprogram_declarative_item: $ => choice(
+      $.subprogram_declaration,
+      //$.subprogram_body,
+      //$.subprogram_instantiation_declaration,
+      //$.package_declaration,
+      //$.package_body,
+      //$.package_instantiation_declaration,
+      $.type_declaration,
+      $.subtype_declaration,
+      $.constant_declaration,
+      //$.variable_declaration,
+      $.file_declaration,
+      $.alias_declaration,
+      $.attribute_declaration,
+      //$.attribute_specification,
+      $.use_clause,
+      //$.group_template_declaration,
+      //$.group_declaration
+    ),
+
+    subprogram_kind: $ => choice('procedure', 'function'),
+
     // 4.5.3 Signatures
 
     signature: $ => seq(
@@ -1146,6 +1182,51 @@ module.exports = grammar({
       //seq('new', $.subtype_indication, optional($.generic_map_aspect)),
       seq('new', $.qualified_expression)
     ),
+
+    // ########################################################################
+    // 10 Sequential statements
+    // ########################################################################
+
+    // 10.1 General
+
+    sequential_statement: $ => choice(
+      //$.wait_statement,
+      $.assertion_statement,
+      //$.report_statement,
+      //$.signal_assignment_statement,
+      //$.variable_assignment_statement,
+      //$.procedure_call_statement,
+      //$.if_statement,
+      //$.case_statement,
+      //$.loop_statement,
+      //$.next_statement,
+      //$.exit_statement,
+      //$.return_statement,
+      //$.null_statement,
+      //$.sequential_block_statement
+    ),
+
+    // 10.3 Assertion statement
+
+    assertion_statement: $ => seq(
+      optional(seq($._label, ':')),
+      $.assertion,
+      $._semicolon
+    ),
+
+    assertion: $ => seq(
+      'assert', $.condition,
+      optional(seq('report', $.expression)),
+      optional(seq('severity', $.expression))
+    ),
+
+    // ########################################################################
+    // 11 Concurrent statements
+    // ########################################################################
+
+    // 11.8 Generate statements
+
+    _label: $ => $._identifier,
 
     // ########################################################################
     // 12 Scope and visibility
