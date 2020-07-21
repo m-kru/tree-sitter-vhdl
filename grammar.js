@@ -1132,9 +1132,9 @@ module.exports = grammar({
 
     shift_operator: $ => choice('sll', 'srl', 'sla', 'sra', 'rol', 'ror'),
 
-    adding_operator: $ => choice('+', '–', '&'),
+    adding_operator: $ => choice('+', '-', '&'),
 
-    sign: $ => choice('+', '–'),
+    sign: $ => choice('+', '-'),
 
     multiplying_operator: $ => choice('*', '/', 'mod', 'rem'),
 
