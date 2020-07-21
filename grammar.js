@@ -74,6 +74,8 @@ module.exports = grammar({
 
     _local_port_clause: $ => $.port_clause,
 
+    _shared_variable_declaration: $ => $.variable_declaration,
+
     // ########################################################################
     // 3 Design entities and configurations
     // ########################################################################
@@ -117,7 +119,7 @@ module.exports = grammar({
       //$.mode_view_declaration,
       $.constant_declaration,
       $.signal_declaration,
-      //$.shared_variable_declaration,
+      $._shared_variable_declaration,
       $.file_declaration,
       $.alias_declaration,
       $.attribute_declaration,
@@ -216,7 +218,7 @@ module.exports = grammar({
       $.type_declaration,
       $.subtype_declaration,
       $.constant_declaration,
-      //$.variable_declaration,
+      $.variable_declaration,
       $.file_declaration,
       $.alias_declaration,
       $.attribute_declaration,
@@ -262,7 +264,7 @@ module.exports = grammar({
       //$.mode_view_declaration,
       $.constant_declaration,
       $.signal_declaration,
-      //$.shared_variable_declaration,
+      $._shared_variable_declaration,
       $.file_declaration,
       $.alias_declaration,
       $.component_declaration,
@@ -295,7 +297,7 @@ module.exports = grammar({
       $.type_declaration,
       $.subtype_declaration,
       $.constant_declaration,
-      //$.shared_variable_declaration,
+      $._shared_variable_declaration,
       $.file_declaration,
       $.alias_declaration,
       $.attribute_declaration,
@@ -670,7 +672,7 @@ module.exports = grammar({
     object_declaration: $ => choice(
       $.constant_declaration,
       //$.signal_declaration,
-      //$.variable_declaration,
+      $.variable_declaration,
       //$.file_declaration
     ),
 
@@ -698,6 +700,18 @@ module.exports = grammar({
     ),
 
     signal_kind: $ => choice('register', 'bus'),
+
+    // 6.4.2.4 Variable declarations
+
+    variable_declaration: $ => seq (
+      optional('shared'), 'variable',
+      $.identifier_list,
+      ':',
+      $.subtype_indication,
+      optional($.generic_map_aspect),
+      optional(seq(':=', $.conditional_expression)),
+      $._semicolon
+    ),
 
     // 6.4.2.5 File declarations
 
