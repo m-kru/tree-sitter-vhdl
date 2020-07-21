@@ -1,0 +1,14 @@
+==================
+Empty package body
+==================
+
+package body foo is
+end;
+
+package body foo is
+end foo;
+
+package body foo is
+end package body foo;
+
+---

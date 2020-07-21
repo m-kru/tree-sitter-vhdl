@@ -110,7 +110,7 @@ module.exports = grammar({
       //$.subprogram_body,
       //$.subprogram_instantiation_declaration,
       $.package_declaration,
-      //$.package_body,
+      $.package_body,
       //$.package_instantiation_declaration,
       $.type_declaration,
       $.subtype_declaration,
@@ -211,7 +211,7 @@ module.exports = grammar({
       //$.subprogram_body,
       //$.subprogram_instantiation_declaration,
       //$.package_declaration,
-      //$.package_body,
+      $.package_body,
       //$.package_instantiation_declaration,
       $.type_declaration,
       $.subtype_declaration,
@@ -274,6 +274,35 @@ module.exports = grammar({
       //$.group_declaration,
       //$.PSL_Property_Declaration,
       //$.PSL_Sequence_Declaration
+    ),
+
+    // 4.8 Package bodies
+
+    package_body: $ => seq(
+      'package', 'body', $._package_simple_name, 'is',
+      repeat($._package_body_declarative_item),
+      'end', optional(seq('package', 'body')), optional($._package_simple_name),
+      $._semicolon
+    ),
+
+    _package_body_declarative_item: $ => choice(
+      $.subprogram_declaration,
+      $.subprogram_body,
+      //$.subprogram_instantiation_declaration,
+      $.package_declaration,
+      $.package_body,
+      //$.package_instantiation_declaration,
+      $.type_declaration,
+      $.subtype_declaration,
+      $.constant_declaration,
+      //$.shared_variable_declaration,
+      $.file_declaration,
+      $.alias_declaration,
+      $.attribute_declaration,
+      //$.attribute_specification,
+      $.use_clause,
+      //$.group_template_declaration,
+      //$.group_declaration,
     ),
 
     // ########################################################################
@@ -1256,7 +1285,7 @@ module.exports = grammar({
 
     _library_unit: $ => choice(
       $._primary_unit,
-    //  $.secondary_unit
+      $._secondary_unit
     ),
 
     _primary_unit: $ => choice(
@@ -1268,10 +1297,10 @@ module.exports = grammar({
     //  //$.PSL_verification_unit
     ),
 
-    //secondary_unit: $ => choice(
+    _secondary_unit: $ => choice(
     //  $.architecture_body,
-    //  $.package_body
-    //),
+      $.package_body
+    ),
 
     // 13.2 Design libraries
 
